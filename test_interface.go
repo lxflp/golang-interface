@@ -28,5 +28,6 @@ func main1() {
 	var m scalesV1
 	fmt.Println(conveer(m))
 	var p scalesV2
-	fmt.Println(conveer(p))
+	msg := conveer(p)
+	fmt.Println(msg)
 }
