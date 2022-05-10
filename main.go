@@ -7,9 +7,9 @@ import (
 )
 
 type usersStorager interface {
-	save(user userData) error
-	get(phone string) (userData, error)
-	delete(phone string) error
+	save(user userData) error           //функция сохранения пользователей
+	get(phone string) (userData, error) //функция получения пользователя по номеру телефона
+	delete(phone string) error          //функция удаления пользователя
 }
 
 type userData struct {
@@ -56,6 +56,7 @@ var storage = userStorage{Data: make([]userData, 0, 10)}
 
 func main() {
 	http.HandleFunc("/register", registerUser)
+	http.HandleFunc("/login", loginUser)
 	http.ListenAndServe(":8888", nil)
 }
 func registerUser(writer http.ResponseWriter, request *http.Request) {
@@ -72,6 +73,26 @@ func registerUser(writer http.ResponseWriter, request *http.Request) {
 
 	}
 	fmt.Fprintf(writer, "Пользователь успешно зарегистрирован")
+}
+func loginUser(writer http.ResponseWriter, request *http.Request) {
+	var user userData
+	var err error
+	err = Decode(request, &user)
+	if err != nil {
+		fmt.Fprintf(writer, "Неверные данные")
+		return
+	}
+	var user2 userData
+	user2, err = storage.get(user.Phone)
+	if err != nil {
+		fmt.Fprintf(writer, err.Error())
+		return
+	}
+	if user.Password != user2.Password {
+		fmt.Fprintf(writer, "неверный пароль")
+		return
+	}
+	fmt.Fprintf(writer, "Вы успешно вошли в систему")
 }
 
 func Decode(r *http.Request, val interface{}) error {
